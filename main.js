@@ -4,6 +4,14 @@ let tasksDiv = document.querySelector(".tasks");
 
 // empty arrary to story tasks
 let arrayOfTasks = [];
+
+// check if there is data IN local storage
+if (localStorage.getItem("tasks")) {
+    arrayOfTasks = JSON.parse(localStorage.getItem("tasks"));
+}
+
+// trigger get data from local storage
+getDataFromLocalStorage();
 // add tasks
 submit.onclick = function () {
     if(input.value !== "");{
@@ -11,6 +19,25 @@ submit.onclick = function () {
         input.value = ""; // empty input field
     }   
 }
+
+// click on task element
+tasksDiv.addEventListener("click", (e) => {
+    // delete button
+    if (e.target.classList.contains("del")) {
+        // remove tasks from local storage
+        deleteTaskWithId(e.target.parentElement.getAttribute("data-id"));
+
+        // remove element form page
+        e.target.parentElement.remove();  
+    }
+        // task element
+        if (e.target.classList.contains("task")){
+            // toggle comleted for the task
+            toggleStatusTaskWith(e.target.getAttribute("data-id"))
+            // toggle done class
+            e.target.classList.toggle("done");
+        }
+});
 function addTaskToArray(taksText) {
     // Task Data
     const task = {
@@ -23,6 +50,9 @@ function addTaskToArray(taksText) {
 
     // add tasks to page
     addElementToPageFrom(arrayOfTasks);
+
+    // add tasks to local storage
+    addDataToLocalStorageFrom(arrayOfTasks);  
 }
 function addElementToPageFrom(arrayOfTasks) {
     // empty tasks Div
@@ -46,4 +76,30 @@ function addElementToPageFrom(arrayOfTasks) {
         // add taska div to tasks container
         tasksDiv.appendChild(div);
     })
+}
+function addDataToLocalStorageFrom(arrayOfTasks) {
+    window.localStorage.setItem("tasks",JSON.stringify(arrayOfTasks));
+}  
+
+function getDataFromLocalStorage() {
+    let data = window.localStorage.getItem("tasks");
+    if (data) {
+        let tasks = JSON.parse(data);
+        addElementToPageFrom(tasks);
+    }
+}
+
+function deleteTaskWithId(taskId) {
+    arrayOfTasks = arrayOfTasks.filter((task) => task.id != taskId); 
+    addDataToLocalStorageFrom(arrayOfTasks);
+}
+
+function toggleStatusTaskWith(taskId) {
+    for (i=1; i<arrayOfTasks.length; i++){
+        if(arrayOfTasks[i]== taskId){
+            arrayOfTasks[i].completed == false? arrayOfTasks[i].completed = true: arrayOfTasks[i].completed == false; 
+        }
+    }    
+    addDataToLocalStorageFrom(arrayOfTasks);
+
 }
